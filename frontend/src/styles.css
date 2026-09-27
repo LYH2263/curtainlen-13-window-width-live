@@ -10,4 +10,5 @@ body{margin:0;font-family:Segoe UI,sans-serif;background:#e8eef5}
 .panel-cut{display:flex;gap:6px;align-items:flex-end;margin-top:1rem}
 .panel{width:28px;background:#5dade2;border:1px solid #2874a6}
 .bad{color:#c0392b}
+.ok{color:#1e8449}
 .fab{margin:.25rem 0}
