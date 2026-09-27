@@ -14,18 +14,27 @@ def insert_run(window_id, fabric_id, result, note=""):
     finally:
         c.close()
 
+def _row_to_run(row):
+    d = dict(row)
+    d["result"] = json.loads(d.pop("result_json"))
+    return d
+
+_RUN_SELECT = """SELECT r.*, w.name window_name, f.name fabric_name FROM calc_runs r
+    LEFT JOIN windows w ON w.id=r.window_id LEFT JOIN fabrics f ON f.id=r.fabric_id"""
+
+def get_run(rid: int):
+    c = connect()
+    try:
+        row = c.execute(_RUN_SELECT + " WHERE r.id=?", (rid,)).fetchone()
+        return _row_to_run(row) if row else None
+    finally:
+        c.close()
+
 def list_runs(limit=50):
     c = connect()
     try:
         rows = c.execute(
-            """SELECT r.*, w.name window_name, f.name fabric_name FROM calc_runs r
-            LEFT JOIN windows w ON w.id=r.window_id LEFT JOIN fabrics f ON f.id=r.fabric_id
-            ORDER BY r.id DESC LIMIT ?""", (limit,)).fetchall()
-        out = []
-        for row in rows:
-            d = dict(row)
-            d["result"] = json.loads(d.pop("result_json"))
-            out.append(d)
-        return out
+            _RUN_SELECT + " ORDER BY r.id DESC LIMIT ?", (limit,)).fetchall()
+        return [_row_to_run(row) for row in rows]
     finally:
         c.close()
